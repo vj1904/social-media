@@ -20,7 +20,7 @@ const Sidebar = ({ selectedTab, setSelectedTab }) => {
         <li
           className="nav-item"
           onClick={() => {
-            console.log("clicked");
+            // console.log("clicked");
             setSelectedTab("home");
           }}
         >

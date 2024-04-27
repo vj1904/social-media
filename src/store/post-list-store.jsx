@@ -1,9 +1,9 @@
-import React, { createContext, useReducer } from "react";
+import React, { createContext, useReducer, useEffect, useState } from "react";
 
 export const PostList = createContext({
   postList: [],
+  fetching: false,
   addPost: () => {},
-  addInitialPosts: () => {},
   deletePost: () => {},
 });
 
@@ -22,17 +22,10 @@ const postListReducer = (currPostList, action) => {
 };
 
 const PostListProvider = ({ children }) => {
-  const addPost = (userId, postTitle, postBody, reactions, tags) => {
+  const addPost = (post) => {
     dispatchPostList({
       type: "ADD_POST",
-      payload: {
-        id: Date.now(),
-        title: postTitle,
-        body: postBody,
-        reactions: reactions,
-        userId: userId,
-        tags: tags,
-      },
+      payload: post,
     });
   };
 
@@ -50,13 +43,30 @@ const PostListProvider = ({ children }) => {
   };
 
   const [postList, dispatchPostList] = useReducer(postListReducer, []);
+  const [fetching, setFetching] = useState(false);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    setFetching(true);
+    fetch("https://dummyjson.com/posts", { signal })
+      .then((res) => res.json())
+      .then((data) => {
+        addInitialPosts(data.posts);
+        setFetching(false);
+      });
+    return () => {
+      controller.abort();
+    };
+  }, []);
 
   return (
     <PostList.Provider
       value={{
         postList,
+        fetching,
         addPost,
-        addInitialPosts,
         deletePost,
       }}
     >
@@ -64,32 +74,5 @@ const PostListProvider = ({ children }) => {
     </PostList.Provider>
   );
 };
-
-const DEFAULT_POST_LIST = [
-  {
-    id: "1",
-    title: "First day at Gym",
-    body: "Starting day 1 at gym",
-    reactions: 69,
-    userId: "user-1",
-    tags: ["Gym", "Muscle", "Buuilding"],
-  },
-  {
-    id: "4",
-    title: "First day at Gym",
-    body: "Starting day 1 at gym",
-    reactions: 69,
-    userId: "user-1",
-    tags: ["Gym", "Muscle", "Buuilding"],
-  },
-  {
-    id: "7",
-    title: "First day at Gym",
-    body: "Starting day 1 at gym",
-    reactions: 69,
-    userId: "user-1",
-    tags: ["Gym", "Muscle", "Building"],
-  },
-];
 
 export default PostListProvider;

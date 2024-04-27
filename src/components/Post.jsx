@@ -8,6 +8,7 @@ const Post = ({ post }) => {
     <div className="card post-card">
       <div className="card-body">
         <span
+          role="button"
           className="position-absolute top-0 start-100 translate-middle badge rounded bg-secondary"
           onClick={() => deletePost(post.id)}
         >
